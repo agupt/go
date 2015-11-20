@@ -702,7 +702,12 @@ func (x *genRunner) enc(varname string, t reflect.Type) {
 		x.linef("} else if !%sm%s && z.IsJSONHandle() { z.EncJSONMarshal(%v) ", genTempVarPfx, mi, varname)
 	} else if tptr.Implements(jsonMarshalerTyp) {
 		// varname represent value, use address of varname
-		x.linef("} else if !%sm%s && z.IsJSONHandle() { z.EncJSONMarshal(&%v) ", genTempVarPfx, mi, varname)
+		switch t.Kind() {
+		case reflect.Struct, reflect.Array:
+			x.linef("} else if !%sm%s && z.IsJSONHandle() { z.EncJSONMarshal(%v) ", genTempVarPfx, mi, varname)
+		default:
+			x.linef("} else if !%sm%s && z.IsJSONHandle() { z.EncJSONMarshal(&%v) ", genTempVarPfx, mi, varname)
+		}
 	} else if t.Implements(textMarshalerTyp) || tptr.Implements(textMarshalerTyp) {
 		x.linef("} else if !%sm%s { z.EncTextMarshal(%v) ", genTempVarPfx, mi, varname)
 	}
