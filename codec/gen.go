@@ -1252,43 +1252,85 @@ func (x *genRunner) decTryAssignPrimitive(varname string, t reflect.Type) (tryAs
 	// with:
 	//      case reflect.Uint32: x.line(varname + " = " + genTypeNamePrim(t, x.tc) + "(r.DecodeUint(32))")
 
+	// func to check if t implements selfer if yes use it for decoding
+	xsc := func(t reflect.Type, varname string) bool {
+		rtid := reflect.ValueOf(t).Pointer()
+		if x.checkForSelfer(t, varname) {
+			if t.Implements(selferTyp) {
+				x.line(varname + ".CodecDecodeSelf(d)")
+				return true
+			}
+			if _, ok := x.td[rtid]; ok {
+				x.line(varname + ".CodecDecodeSelf(d)")
+				return true
+			}
+		}
+		return false
+	}
 	xfn := func(t reflect.Type) string {
 		return x.genTypeNamePrim(t)
 	}
 	switch t.Kind() {
 	case reflect.Int:
-		x.linef("%s = %s(r.DecodeInt(codecSelferBitsize%s))", varname, xfn(t), x.xs)
+		if !xsc(t, varname) {
+			x.linef("%s = %s(r.DecodeInt(codecSelferBitsize%s))", varname, xfn(t), x.xs)
+		}
 	case reflect.Int8:
-		x.linef("%s = %s(r.DecodeInt(8))", varname, xfn(t))
+		if !xsc(t, varname) {
+			x.linef("%s = %s(r.DecodeInt(8))", varname, xfn(t))
+		}
 	case reflect.Int16:
-		x.linef("%s = %s(r.DecodeInt(16))", varname, xfn(t))
+		if !xsc(t, varname) {
+			x.linef("%s = %s(r.DecodeInt(16))", varname, xfn(t))
+		}
 	case reflect.Int32:
-		x.linef("%s = %s(r.DecodeInt(32))", varname, xfn(t))
+		if !xsc(t, varname) {
+			x.linef("%s = %s(r.DecodeInt(32))", varname, xfn(t))
+		}
 	case reflect.Int64:
-		x.linef("%s = %s(r.DecodeInt(64))", varname, xfn(t))
-
+		if !xsc(t, varname) {
+			x.linef("%s = %s(r.DecodeInt(64))", varname, xfn(t))
+		}
 	case reflect.Uint:
-		x.linef("%s = %s(r.DecodeUint(codecSelferBitsize%s))", varname, xfn(t), x.xs)
+		if !xsc(t, varname) {
+			x.linef("%s = %s(r.DecodeUint(codecSelferBitsize%s))", varname, xfn(t), x.xs)
+		}
 	case reflect.Uint8:
-		x.linef("%s = %s(r.DecodeUint(8))", varname, xfn(t))
+		if !xsc(t, varname) {
+			x.linef("%s = %s(r.DecodeUint(8))", varname, xfn(t))
+		}
 	case reflect.Uint16:
-		x.linef("%s = %s(r.DecodeUint(16))", varname, xfn(t))
+		if !xsc(t, varname) {
+			x.linef("%s = %s(r.DecodeUint(16))", varname, xfn(t))
+		}
 	case reflect.Uint32:
-		x.linef("%s = %s(r.DecodeUint(32))", varname, xfn(t))
+		if !xsc(t, varname) {
+			x.linef("%s = %s(r.DecodeUint(32))", varname, xfn(t))
+		}
 	case reflect.Uint64:
-		x.linef("%s = %s(r.DecodeUint(64))", varname, xfn(t))
+		if !xsc(t, varname) {
+			x.linef("%s = %s(r.DecodeUint(64))", varname, xfn(t))
+		}
 	case reflect.Uintptr:
-		x.linef("%s = %s(r.DecodeUint(codecSelferBitsize%s))", varname, xfn(t), x.xs)
-
+		if !xsc(t, varname) {
+			x.linef("%s = %s(r.DecodeUint(codecSelferBitsize%s))", varname, xfn(t), x.xs)
+		}
 	case reflect.Float32:
-		x.linef("%s = %s(r.DecodeFloat(true))", varname, xfn(t))
+		if !xsc(t, varname) {
+			x.linef("%s = %s(r.DecodeFloat(true))", varname, xfn(t))
+		}
 	case reflect.Float64:
-		x.linef("%s = %s(r.DecodeFloat(false))", varname, xfn(t))
-
+		if !xsc(t, varname) {
+			x.linef("%s = %s(r.DecodeFloat(false))", varname, xfn(t))
+		}
 	case reflect.Bool:
-		x.linef("%s = %s(r.DecodeBool())", varname, xfn(t))
+		if !xsc(t, varname) {
+			x.linef("%s = %s(r.DecodeBool())", varname, xfn(t))
+		}
 	case reflect.String:
-		x.linef("%s = %s(r.DecodeString())", varname, xfn(t))
+		if !xsc(t, varname) {
+			x.linef("%s = %s(r.DecodeString())", varname, xfn(t))
+		}
 	default:
 		tryAsPtr = true
 	}
